@@ -1,0 +1,46 @@
+#include "iostream"
+#include "math.h"
+using namespace std;
+#define size 10
+
+    bool HashTable[size+1][2];
+
+void insertItem(int arr[],int n){
+        for(int i=0;i<n;i++){
+            // Set Positive values at 0th column
+                if(arr[i]>=0)
+            HashTable[arr[i]][0]=1;
+                else
+                    // Set Negative values at 1th column
+                    HashTable[abs(arr[i])][1]=1;
+        }
+}
+
+    bool SearchItem(int n){
+        if(n>=0) {
+            if (HashTable[n][0] == 1)
+                return true;
+            else
+                return false;
+        }
+        else
+            if(HashTable[abs(n)][1]==1)
+                return true;
+            else
+                return false;
+}
+int main(){
+
+    int arr[]={1,-3,2,0,-5,8};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    insertItem(arr,n);
+
+    int item;
+    cout<<"Enter Item to be Searched: ";
+    cin>>item;
+    if(SearchItem(item))
+        cout<<"Item found!"<<endl;
+    else
+        cout<<"Item not found!"<<endl;
+
+}
