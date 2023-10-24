@@ -67,6 +67,7 @@ Node *buildTree(Node *root) {
     return root;
 }
 
+// T.C = O(N),  S.C = O(1)
 void levelOrderTraversal(Node *root) {
     queue<Node *> q;
     q.push(root);
@@ -102,7 +103,37 @@ void postorder(Node *root) {
     }
 }
 
+void InorderMorrisTraversal(Node* root) {
+     Node* curr = root;
 
+     while(curr!=NULL){
+         if(curr->left==NULL){
+             cout<<curr->data<<" ";
+             curr = curr->right;
+         }
+         else{
+             Node* prev = curr->left;
+             //while prev->right != NULL && prev->right is not pointing to curr Node
+             while(prev->right && prev->right!=curr){
+                 prev = prev->right;
+             }
+             // rightmost node to prev pointer
+             if(prev->right==NULL){
+                 prev->right = curr;
+                 // we saved the curr in prev.right, we can safely move it
+                 curr = curr->left;
+             }
+             // rightmost node already pointing to curr
+             else{
+                 prev->right = NULL;    // break the connection
+                 cout<<curr->data<<" ";
+                 // now we assume curr->left portion is done, move it to right
+                 curr = curr->right;
+             }
+         }
+     }
+     cout<<endl;
+    }
 
 int main() {
 
@@ -110,6 +141,8 @@ int main() {
     root = buildFromLevel(root);
     cout<<endl;
     levelOrderTraversal(root);
+    cout<<"Inorder Traversal -> ";
+    InorderMorrisTraversal(root);
 
 
 }
