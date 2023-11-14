@@ -1,24 +1,25 @@
 #include "iostream"
 #include "vector"
+#include "queue"
 
 using namespace std;
 
-class Node {
+class TreeNode {
 public:
-    int data;
-    Node *left;
-    Node *right;
+    int val;
+    TreeNode *left;
+    TreeNode *right;
     int height;
 
-    Node(int data) {
-        this->data = data;
+    TreeNode(int val) {
+        this->val = val;
         left = right = NULL;
-        height = 1; // as new Node is initially added at leaf
+        height = 1; // as new TreeNode is initially added at leaf
     }
 
 };
 
-int getHeight(Node *node) {
+int getHeight(TreeNode *node) {
     if (node == NULL)
         return 0;
     else
@@ -26,23 +27,23 @@ int getHeight(Node *node) {
 }
 
 // return the difference left & right node's height
-int getBalance(Node *node) {
+int getBalance(TreeNode *node) {
     return getHeight(node->left) - getHeight(node->right);
 }
 
 // here in Function let
-// T1 > T2 > ( parentNode > medianNode > leaf/updated Node )
-Node *leftRotate(Node *parentNode) {
+// T1 > T2 > ( parentNode > medianNode > leaf/updated TreeNode )
+TreeNode *leftRotate(TreeNode *parentNode) {
     /*  Initial Example
      *      5 <- parentNode
      *     /  \
      *   (T1)  10  <- medianNode
      *         /  \
-             (T2)  15 <- recently Inserted or updated Node
+             (T2)  15 <- recently Inserted or updated TreeNode
              */
 
-    Node *medianNode = parentNode->right; // parentNode < medianNode < leftNode
-    Node *T2 = medianNode->left; // T2 > parentNode
+    TreeNode *medianNode = parentNode->right; // parentNode < medianNode < leftNode
+    TreeNode *T2 = medianNode->left; // T2 > parentNode
 
 // * Perform Rotation
     medianNode->left = parentNode;
@@ -66,7 +67,7 @@ Node *leftRotate(Node *parentNode) {
       (T1) (T2) */
 
 // * Update Heights
-    // first update parent Node cuz it's on left/below side of medianNode
+    // first update parent TreeNode cuz it's on left/below side of medianNode
     parentNode->height = 1 + std::max(
             getHeight(parentNode->left), getHeight(parentNode->right)
     );
@@ -75,21 +76,21 @@ Node *leftRotate(Node *parentNode) {
             getHeight(medianNode->left), getHeight(medianNode->right)
     );
 
-    return medianNode;  // as new root Node
+    return medianNode;  // as new root TreeNode
 }
 
 // Same leftRotate's Rule will be followed for rightRotate with a minor change
 // see leftRotate's comment for more clarity
-Node *rightRotate(Node *parentNode) {
-    Node *medianNode = parentNode->left;
-    Node *T2 = medianNode->right;
+TreeNode *rightRotate(TreeNode *parentNode) {
+    TreeNode *medianNode = parentNode->left;
+    TreeNode *T2 = medianNode->right;
 
 // * perform rotation
     medianNode->right = parentNode;
     parentNode->left = T2;
 
 // * Update Heights
-    // first update parent Node cuz it's on right/below side of medianNode
+    // first update parent TreeNode cuz it's on right/below side of medianNode
     parentNode->height = 1 + std::max(
             getHeight(parentNode->left), getHeight(parentNode->right)
     );
@@ -102,23 +103,23 @@ Node *rightRotate(Node *parentNode) {
 }
 
 // Root, Left, Right
-void PreOrderTraversal(Node *root) {
+void PreOrderTraversal(TreeNode *root) {
     if (root) {
-        cout << root->data << " ";
+        cout << root->val << " ";
         PreOrderTraversal(root->left);
         PreOrderTraversal(root->right);
     }
 }
 
-Node *Insert(Node *root, int val) {
+TreeNode *InsertInAVL(TreeNode *root, int val) {
     if (root == NULL)
-        return new Node(val);
+        return new TreeNode(val);
 
-    if (val < root->data)
-        // Root node returned with data and height = 1
-        root->left = Insert(root->left, val);
-    else if (val > root->data)
-        root->right = Insert(root->right, val);
+    if (val < root->val)
+        // Root node returned with val and height = 1
+        root->left = InsertInAVL(root->left, val);
+    else if (val > root->val)
+        root->right = InsertInAVL(root->right, val);
     else    // if value is equal to node itself, no insertion allowed
         return root;
 
@@ -133,7 +134,7 @@ Node *Insert(Node *root, int val) {
 //           X       Y
 //          Y   to  Z X
 //         Z
-    if (balance > 1 && val < root->left->data){
+    if (balance > 1 && val < root->left->val){
         root = rightRotate(root);
         return root;
     }
@@ -142,7 +143,7 @@ Node *Insert(Node *root, int val) {
 //       X         Y
 //        Y   to  X  Z  (Left Rotate)
 //         Z
-    if (balance < -1 && val > root->right->data) {
+    if (balance < -1 && val > root->right->val) {
         root = leftRotate(root);
         return root;
     }
@@ -150,7 +151,7 @@ Node *Insert(Node *root, int val) {
 //         X            X         Z
 //       Y       to,   Z     to Y   X
 //         Z.         Y
-    if(balance > 1 && val > root->right->data){
+    if(balance > 1 && val > root->right->val){
         // first rotate root->left and it's child then root
         root->left = leftRotate(root->left);
         root = rightRotate(root);
@@ -161,7 +162,7 @@ Node *Insert(Node *root, int val) {
 //         X         X             Z
 //           Y   to,   Z     to  X    Y
 //         Z.            Y
-    if(balance < -1 && val < root->right->data){
+    if(balance < -1 && val < root->right->val){
         // first rotate root->right and it's child then root
         root->right = rightRotate(root->right);
         root = leftRotate(root);
@@ -171,17 +172,46 @@ Node *Insert(Node *root, int val) {
 //  | ============================================ |
     return root;
 }
+void levelOrderTraversal(TreeNode *root) {
+    queue<TreeNode *> q;
+    q.push(root);
+    q.push(NULL);
+    cout<<"\n  ---------------------------\n";
+    while (!q.empty()) {
+        TreeNode *temp = q.front();
+        q.pop();
+
+        if (temp) {
+            cout << temp->val << " ";
+            if (temp->left)
+                q.push(temp->left);
+            if (temp->right)
+                q.push(temp->right);
+        }
+        // NULL will come after a complete level
+        else { // if temp is NULL
+            cout<<endl;
+            if(!q.empty())
+                q.push(NULL);
+        }
+    }
+    cout<<"--------------------------------\n";
+}
 
 int main() {
-    Node *root = NULL;
-    root = Insert(root, 7);
-    root = Insert(root, 9);
-    root = Insert(root, 11);
+    TreeNode *root = NULL;
+    root = InsertInAVL(root, 12);
+    root = InsertInAVL(root, 8);
+    root = InsertInAVL(root, 4);
+    cout<<"Printing PreOrder Traversal: \n";
     PreOrderTraversal(root); cout << endl;
-        
-    root = Insert(root, 10);
-    root = Insert(root, 14);
-    root = Insert(root, 17);
-    PreOrderTraversal(root);    cout<<endl;
 
+    root = InsertInAVL(root, 6);
+    root = InsertInAVL(root, 2);
+    root = InsertInAVL(root, 3);
+    root = InsertInAVL(root, 14);
+    root = InsertInAVL(root, 16);
+    cout<<"\nPrinting level Order Traversal: \n";
+    levelOrderTraversal(root);
+    
 }
