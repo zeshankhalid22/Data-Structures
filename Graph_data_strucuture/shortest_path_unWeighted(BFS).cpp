@@ -20,21 +20,26 @@
              adjList[v].push_back(u); // Comment this line for a directed graph
      }
 
-    // shortest distance UnWeighted Graph, from source to all
+    // shortest distance UnWeighted Graph, from src to all
     // assume dist from every U to V is 1.
-     void distanceFromSource(int source){
-         if(adjList.find(source) == adjList.end()){
+     void distanceFromSource(int src){
+         if(adjList.find(src) == adjList.end()){
              cout<<"Invalid Source\n";
              return;
          }
 
          unordered_map<int,bool> visited;
-         //           <vertex, distance from source>
+         //           <vertex, distance from src>
          unordered_map<int,int> distance;
+         // initial distance -1
+         for(auto &i: adjList){
+        distance[i.first] = -1;
+    }
+
          queue<int> q;
-         q.push(source);
-         distance[source] = 0;
-         visited[source] = true;
+         q.push(src);
+         distance[src] = 0;
+         visited[src] = true;
 
          while(!q.empty()){
              int u =  q.front();
@@ -50,7 +55,7 @@
                  }
              }
          }
-         cout<<"Shortest Distance from ["<<source<<"] to\n";
+         cout << "Shortest Distance from [" << src << "] to\n";
          for(auto &i: distance){
              cout<<i.first<<" is "<<i.second<<endl;
          }
