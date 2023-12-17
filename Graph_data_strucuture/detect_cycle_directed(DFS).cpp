@@ -1,13 +1,16 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include "stack"
+
 
 using namespace std;
 
 class Graph {
     unordered_map<int, vector<int>> adjList;
     // Check whether some Path is tried to visited again (DFS)
-    bool path_vis_again(int v, unordered_map<int, bool> &visited, unordered_map<int, bool> &path_finder) {
+    bool path_vis_again(int v, unordered_map<int, bool> &visited,
+                        unordered_map<int, bool> &path_finder,stack<int>& topOrder) {
 
         // visit and set current V's path_finder
         visited[v] = true;
@@ -15,7 +18,7 @@ class Graph {
         for (auto neighbours: adjList[v]) {
             if (!visited[neighbours]) {
                 // go in neighbours path_finder
-                bool ret = path_vis_again(neighbours, visited, path_finder);
+                bool ret = path_vis_again(neighbours, visited, path_finder,topOrder);
                 // if cycle detected from neighbours, no need to go more, just return
                 if (ret)
                     return true;
@@ -28,6 +31,8 @@ class Graph {
         // leaving vertex, mean leaving/backtracking this path,
         // so remove curr v from path_finder, as cycle not detected at this point
         path_finder[v] = false;
+        // pushing more independent to less independent
+        topOrder.push(v);
         return false;
     }
 
@@ -37,19 +42,25 @@ public:
     }
 
     bool isCycle() {
-        int V = adjList.size();
         unordered_map<int, bool> visited;
         unordered_map<int, bool> path_finder;   // to keep track of current path
+        stack<int> topOrder;    // to store elements in Topological Order
 
-        for (int i = 0; i < V; i++) {
+        for (auto &i: adjList) {
             // check for every non-visited node
-            if (!visited[i]) {
-                bool ret = path_vis_again(i, visited, path_finder);
+            if (!visited[i.first]) {
+                bool ret = path_vis_again(i.first, visited, path_finder,topOrder);
                 // ang time ret is true, means cycle detected, return
                 if (ret)
                     return ret;
             }
         }
+        // as Graph is not Cyclic, print topological order
+        cout<<"Topological Sort > ";
+        while (!topOrder.empty()){
+            cout<< topOrder.top()<<" ";
+            topOrder.pop();
+        } cout<<endl;
         return false;
     }
 
