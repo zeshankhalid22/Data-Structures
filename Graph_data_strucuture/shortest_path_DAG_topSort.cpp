@@ -19,15 +19,17 @@ public:
     Graph() {}
 
     void addEdge(int u, int v, int dist) {
+        //      u       ->   {v, dist}
         adjList[u].push_back({v, dist});
     }
 
+    // return weight of u -> v if they exist, otherwise -1
     int weight(int u, int v) {
         // iterate into U's neighbour
         for (auto &i: adjList[u]) {
             // if U -> V found
             if (i.first == v) {
-                return i.second;
+                return v.second;
             }
         }
         return -1;
@@ -41,12 +43,11 @@ public:
         for (const auto &V: adjList)
             inDegrees[V.first] = 0;
 
-        //       U -> [{V1, dist},{V2, dist}, . . . ,{Vx, dist}]
-        //       U2 -> [{V1, dist},{V2, dist}, . . . ,{Vx, dist}]
-        //       Ux -> [{V1, dist},{V2, dist}, . . . ,{Vx, dist}]
+        // Calculate InDegree(no in-coming Nodes towards V)
         for (auto &U: adjList) {
-            for (auto &i: U.second) {
-                inDegrees[i.first]++;    // inDegrees[Vi]++
+//            U -> [{V1, dist}, {V2, dist}, {V3, dist} . . ]
+            for (auto &V: U.second) {
+                inDegrees[V.first]++;    // inDegrees[Vi]++
             }
         }
 
@@ -56,7 +57,7 @@ public:
         //          i = [V -> in degree]
         for (auto &i: inDegrees) {
             if (i.second == 0) {
-                inDegrees[i.first]--;
+                inDegrees[i.first]--;   // decrement degree
                 zeroInDegreeQueue.push(i.first);    // q.push(V having 0 in degree
             }
         }
@@ -71,6 +72,7 @@ public:
             for (auto neighbours: adjList[front]) {
                 inDegrees[neighbours.first]--;  // inDegrees[neighbour vertex]--
                 if (inDegrees[neighbours.first] < 0) {
+                    // neighbour is tried to be visited more times than it's inDegree/it should
                     // Cycle Detected here, return as it is
                     return topSort;
                 }
